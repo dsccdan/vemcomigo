@@ -78,7 +78,6 @@ export default function CreateRide() {
         placeholder="Ex: 14:30"
         value={time}
         onChangeText={setTime}
-        keyboardType="numeric"
       />
 
       <Text style={styles.label}>Número de Vagas</Text>

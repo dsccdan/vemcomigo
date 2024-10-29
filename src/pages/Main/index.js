@@ -1,88 +1,135 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, StatusBar, Image, Dimensions } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from "@react-navigation/native";
+import { DrawerLayout } from 'react-native-gesture-handler';
 
 const rides = [
   { id: '1', driver: 'João', destination: 'Centro da Cidade', time: '09:00', date: '2023-10-28', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
   { id: '2', driver: 'Maria', destination: 'Shopping Metropolitano', time: '13:30', date: '2023-10-29', spots: 3, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '3', driver: 'Lucas', destination: 'Estação Jartim Oceânico', time: '18:00', date: '2023-10-30', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '4', driver: 'Ana', destination: 'Barra da Tijuca,', time: '07:30', date: '2023-11-01', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '5', driver: 'Carlos', destination: 'Terminal Alvorada, Barra da Tijuca', time: '12:00', date: '2023-11-02', spots: 3, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '6', driver: 'Beatriz', destination: 'Cristo Redentor', time: '16:00', date: '2023-11-03', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '3', driver: 'Lucas', destination: 'Estação Jardim Oceânico', time: '18:00', date: '2023-10-30', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '4', driver: 'Ana', destination: 'Barra da Tijuca', time: '07:30', date: '2023-11-01', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
 ];
 
 const Main = () => {
   const navigation = useNavigation();
+  const drawer = useRef(null);
+  const [userName, setUserName] = useState("Daniel S C Caldas");
+  const [profileImage, setProfileImage] = useState("https://via.placeholder.com/100");
+  const [age, setAge] = useState("37");
+  const [phone, setPhone] = useState("(21) 97879-7418");
+  const [email, setEmail] = useState("dsccdan@gmail.com");
 
   const handleInterest = (rideId) => {
     Alert.alert("Interesse Registrado", `Você manifestou interesse na carona ${rideId}`);
   };
 
-  const renderRide = ({ item }) => {
-    const rideDate = new Date(item.date);
-    const fixedDate = new Date('2023-10-28'); // Data fixa para comparação
-    const isExpired = rideDate <= fixedDate; // Verifica se a data da carona é anterior à data fixa
+  const pickImage = async () => {
+    // Solicita permissão para acessar a biblioteca de fotos
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    return (
-      <View style={styles.rideCard}>
-        <View style={styles.cardRow}>
-          <View style={styles.imageColumn}>
-            <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
-            <Text style={styles.driverName}>{item.driver}</Text>
-          </View>
-          <View style={styles.infoColumn}>
-            <Text style={styles.destinationText}>{item.destination}</Text>
-            <View style={styles.infoRow}>
-              <FontAwesome name="calendar" size={16} color="#888" />
-              <Text style={styles.rideText}>{rideDate.toLocaleDateString("pt-BR")}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <FontAwesome name="clock-o" size={16} color="#888" />
-              <Text style={styles.rideText}>{item.time}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <FontAwesome name="user" size={16} color="#888" />
-              <Text style={styles.rideText}>Vagas: {item.spots}</Text>
-            </View>
-            <TouchableOpacity 
-              style={[styles.smallInterestButton, isExpired && styles.expiredButton]}
-              onPress={() => !isExpired && handleInterest(item.id)} // Desativa o botão se expirado
-              disabled={isExpired} // Impede interação se expirado
-            >
-              <Text style={[styles.buttonText, isExpired && styles.expiredButtonText]}>
-                {isExpired ? "Expirado" : "Interesse"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    );
+    if (permissionResult.granted === false) {
+      Alert.alert("Permissão necessária", "Permissão para acessar fotos é necessária!");
+      return;
+    }
+
+    // Abre o seletor de imagem
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri); // Atualiza a imagem de perfil com a URI selecionada
+    }
   };
 
-  return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#38A69D" />
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Vem Comigo</Text>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.title}>Caronas Disponíveis</Text>
-        <FlatList
-          data={rides}
-          keyExtractor={(item) => item.id}
-          renderItem={renderRide}
-          numColumns={1}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => navigation.navigate("CreateRide")}
-        >
-          <Text style={styles.buttonText}>Oferecer Carona</Text>
-        </TouchableOpacity>
+  const renderRide = ({ item }) => (
+    <View style={styles.rideCard}>
+      <View style={styles.cardRow}>
+        <View style={styles.imageColumn}>
+          <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
+          <Text style={styles.driverName}>{item.driver}</Text>
+        </View>
+        <View style={styles.infoColumn}>
+          <Text style={styles.destinationText}>{item.destination}</Text>
+          <View style={styles.infoRow}>
+            <FontAwesome name="calendar" size={16} color="#888" />
+            <Text style={styles.rideText}>{new Date(item.date).toLocaleDateString("pt-BR")}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <FontAwesome name="clock-o" size={16} color="#888" />
+            <Text style={styles.rideText}>{item.time}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <FontAwesome name="user" size={16} color="#888" />
+            <Text style={styles.rideText}>Vagas: {item.spots}</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.smallInterestButton}
+            onPress={() => handleInterest(item.id)}
+          >
+            <Text style={styles.buttonText}>Interesse</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
+  );
+
+  const renderDrawerContent = () => (
+    <View style={styles.drawerContent}>
+      <TouchableOpacity onPress={pickImage}>
+        <Image source={{ uri: profileImage }} style={styles.drawerProfileImage} />
+      </TouchableOpacity>
+      <Text style={styles.drawerLabelName}>{userName}</Text>
+      <Text style={styles.drawerLabel}>{age} anos</Text>
+      <Text style={styles.drawerLabel}>{phone}</Text>
+      <Text style={styles.drawerLabel}>{email}</Text>
+      <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.navigate("EditProfile")}>
+        <Text style={styles.drawerButtonText}>Editar Perfil</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.replace("SignIn")}>
+        <Text style={styles.drawerButtonText}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <DrawerLayout
+      ref={drawer}
+      drawerWidth={300}
+      drawerPosition="left"
+      renderNavigationView={renderDrawerContent}
+    >
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#38A69D" />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => drawer.current.openDrawer()}>
+            <FontAwesome name="bars" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Vem Comigo</Text>
+        </View>
+        <View style={styles.content}>
+          <Text style={styles.title}>Caronas Disponíveis</Text>
+          <FlatList
+            data={rides}
+            keyExtractor={(item) => item.id}
+            renderItem={renderRide}
+            numColumns={1}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          />
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => navigation.navigate("CreateRide")}
+          >
+            <Text style={styles.buttonText}>Oferecer Carona</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </DrawerLayout>
   );
 };
 
@@ -100,12 +147,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#38A69D',
     paddingVertical: 15,
     paddingHorizontal: 20,
+    flexDirection: 'row',
     alignItems: 'center',
   },
   headerText: {
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
+    marginLeft: 16,
   },
   content: {
     flex: 1,
@@ -114,7 +163,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#38A69D',
     marginBottom: 16,
     marginTop:16,
     textAlign: 'center',
@@ -182,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   expiredButton: {
-    backgroundColor: '#d3d3d3', // Botão cinza claro para expirado
+    backgroundColor: '#d3d3d3',
   },
   button: {
     backgroundColor: '#38A69D',
@@ -190,7 +239,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,
-    marginBottom:20,
+    marginBottom: 20,
     marginHorizontal: 16,
   },
   buttonText: {
@@ -198,7 +247,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  expiredButtonText: {
-    color: '#a1a1a1', // Cor do texto para botão expirado
+  drawerContent: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#38A69D',
+    width:'75%',
+    borderBottomRightRadius:26
+  },
+  drawerProfileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 8,
+    marginTop:16
+  },
+  drawerLabelName: {
+    fontSize: 18,
+    color: '#fff',
+    marginBottom: 26,
+    fontWeight: 'bold',
+    alignSelf:'center'
+  },
+  drawerLabel: {
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  drawerButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  drawerButtonText: {
+    color: '#38A69D',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
