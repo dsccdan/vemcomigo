@@ -3,48 +3,62 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, StatusBar, I
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 
-
 const rides = [
-  { id: '1', driver: 'João', destination: 'Centro', time: '09:00', spots: 2, imageUrl: 'https://via.placeholder.com/60' },
-  { id: '2', driver: 'Maria', destination: 'Shopping', time: '13:30', spots: 3, imageUrl: 'https://via.placeholder.com/60' },
-  { id: '3', driver: 'Lucas', destination: 'Estação', time: '18:00', spots: 1, imageUrl: 'https://via.placeholder.com/60' },
-  { id: '4', driver: 'Ana', destination: 'Universidade', time: '07:30', spots: 2, imageUrl: 'https://via.placeholder.com/60' },
-  { id: '5', driver: 'Carlos', destination: 'Terminal', time: '12:00', spots: 3, imageUrl: 'https://via.placeholder.com/60' },
-  { id: '6', driver: 'Beatriz', destination: 'Parque', time: '16:00', spots: 1, imageUrl: 'https://via.placeholder.com/60' },
+  { id: '1', driver: 'João', destination: 'Centro da Cidade', time: '09:00', date: '2023-10-28', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '2', driver: 'Maria', destination: 'Shopping Metropolitano', time: '13:30', date: '2023-10-29', spots: 3, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '3', driver: 'Lucas', destination: 'Estação Jartim Oceânico', time: '18:00', date: '2023-10-30', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '4', driver: 'Ana', destination: 'Barra da Tijuca,', time: '07:30', date: '2023-11-01', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '5', driver: 'Carlos', destination: 'Terminal Alvorada, Barra da Tijuca', time: '12:00', date: '2023-11-02', spots: 3, imageUrl: 'https://via.placeholder.com/80' },
+  { id: '6', driver: 'Beatriz', destination: 'Cristo Redentor', time: '16:00', date: '2023-11-03', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
 ];
 
-const Main = ({ navigation }) => {
+const Main = () => {
+  const navigation = useNavigation();
+
   const handleInterest = (rideId) => {
     Alert.alert("Interesse Registrado", `Você manifestou interesse na carona ${rideId}`);
   };
 
+  const renderRide = ({ item }) => {
+    const rideDate = new Date(item.date);
+    const fixedDate = new Date('2023-10-28'); // Data fixa para comparação
+    const isExpired = rideDate <= fixedDate; // Verifica se a data da carona é anterior à data fixa
 
-
-  const renderRide = ({ item }) => (
-    <View style={styles.rideCard}>
-      <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
-      <View style={styles.cardContent}>
-        <Text style={styles.rideTitle}>{item.driver}</Text>
-        <Text style={styles.destinationText}>{item.destination}</Text>
-        <View style={styles.infoRow}>
-          <FontAwesome name="clock-o" size={14} color="#888" />
-          <Text style={styles.rideText}>{item.time}</Text>
+    return (
+      <View style={styles.rideCard}>
+        <View style={styles.cardRow}>
+          <View style={styles.imageColumn}>
+            <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
+            <Text style={styles.driverName}>{item.driver}</Text>
+          </View>
+          <View style={styles.infoColumn}>
+            <Text style={styles.destinationText}>{item.destination}</Text>
+            <View style={styles.infoRow}>
+              <FontAwesome name="calendar" size={16} color="#888" />
+              <Text style={styles.rideText}>{rideDate.toLocaleDateString("pt-BR")}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <FontAwesome name="clock-o" size={16} color="#888" />
+              <Text style={styles.rideText}>{item.time}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <FontAwesome name="user" size={16} color="#888" />
+              <Text style={styles.rideText}>Vagas: {item.spots}</Text>
+            </View>
+            <TouchableOpacity 
+              style={[styles.smallInterestButton, isExpired && styles.expiredButton]}
+              onPress={() => !isExpired && handleInterest(item.id)} // Desativa o botão se expirado
+              disabled={isExpired} // Impede interação se expirado
+            >
+              <Text style={[styles.buttonText, isExpired && styles.expiredButtonText]}>
+                {isExpired ? "Expirado" : "Interesse"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.infoRow}>
-          <FontAwesome name="user" size={14} color="#888" />
-          <Text style={styles.rideText}>Vagas: {item.spots}</Text>
-        </View>
-        <TouchableOpacity 
-          style={styles.smallInterestButton} 
-          onPress={() => handleInterest(item.id)}
-        >
-          <Text style={styles.buttonText}>Interesse</Text>
-        </TouchableOpacity>
       </View>
-    </View>
-  );
-
-  const navigator = useNavigation();
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -58,13 +72,12 @@ const Main = ({ navigation }) => {
           data={rides}
           keyExtractor={(item) => item.id}
           renderItem={renderRide}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
+          numColumns={1}
           contentContainerStyle={{ paddingBottom: 20 }}
         />
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => navigator.navigate("CreateRide")}
+          onPress={() => navigation.navigate("CreateRide")}
         >
           <Text style={styles.buttonText}>Oferecer Carona</Text>
         </TouchableOpacity>
@@ -76,7 +89,7 @@ const Main = ({ navigation }) => {
 export default Main;
 
 const { width } = Dimensions.get('window');
-const cardWidth = width / 2 - 32;
+const cardWidth = width - 32;
 
 const styles = StyleSheet.create({
   container: {
@@ -106,44 +119,49 @@ const styles = StyleSheet.create({
     marginTop:16,
     textAlign: 'center',
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
   rideCard: {
     backgroundColor: '#fff',
     width: cardWidth,
-    padding: 12,
+    padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
-    marginHorizontal: 8,
-    alignItems: 'center',
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 10,
+    marginBottom: 16,
     alignSelf: 'center',
   },
-  cardContent: {
-    alignItems: 'center',
+  cardRow: {
+    flexDirection: 'row',
   },
-  rideTitle: {
+  imageColumn: {
+    alignItems: 'center',
+    marginRight: 16,
+    width: 100,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 8,
+  },
+  driverName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
+    marginTop: 4,
+  },
+  infoColumn: {
+    flex: 1,
+    justifyContent: 'center',
   },
   destinationText: {
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#555',
-    marginVertical: 4,
-    textAlign: 'center',
+    marginBottom: 8,
   },
   infoRow: {
     flexDirection: 'row',
@@ -151,16 +169,20 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   rideText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#555',
     marginLeft: 4,
   },
   smallInterestButton: {
     backgroundColor: '#38A69D',
     paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     borderRadius: 8,
     marginTop: 10,
+    alignItems: 'center',
+  },
+  expiredButton: {
+    backgroundColor: '#d3d3d3', // Botão cinza claro para expirado
   },
   button: {
     backgroundColor: '#38A69D',
@@ -175,5 +197,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  expiredButtonText: {
+    color: '#a1a1a1', // Cor do texto para botão expirado
   },
 });

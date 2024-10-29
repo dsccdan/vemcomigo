@@ -6,8 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Platform,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 export default function CreateRide() {
   const navigation = useNavigation();
@@ -15,6 +18,8 @@ export default function CreateRide() {
   const [destination, setDestination] = useState("");
   const [time, setTime] = useState("");
   const [spots, setSpots] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleCreateRide = () => {
     if (!destination || !time || !spots) {
@@ -23,15 +28,25 @@ export default function CreateRide() {
     }
 
     Alert.alert("Sucesso", "Carona cadastrada com sucesso!");
-    // Aqui você pode adicionar a lógica para salvar a carona no backend
+    // Lógica para salvar a carona no backend pode ser adicionada aqui
 
-    // Navega de volta para a tela principal após o cadastro
     navigation.goBack();
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(Platform.OS === "ios"); // Para manter o DatePicker visível no iOS
+    setDate(currentDate);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>Cadastrar Carona</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <FontAwesome name="arrow-left" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Cadastrar Carona</Text>
+      </View>
 
       <Text style={styles.label}>Destino</Text>
       <TextInput
@@ -40,6 +55,22 @@ export default function CreateRide() {
         value={destination}
         onChangeText={setDestination}
       />
+
+      <Text style={styles.label}>Data da Viagem</Text>
+      <TouchableOpacity
+        style={styles.input}
+        onPress={() => setShowDatePicker(true)}
+      >
+        <Text>{date.toLocaleDateString("pt-BR")}</Text>
+      </TouchableOpacity>
+      {showDatePicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
 
       <Text style={styles.label}>Horário de Saída</Text>
       <TextInput
@@ -69,21 +100,27 @@ export default function CreateRide() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#f5f5f5",
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: "#38A69D",
+  },
   headerText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 20,
+    color: "#fff",
+    marginLeft: 15,
   },
   label: {
     fontSize: 18,
     color: "#333",
     marginBottom: 8,
     marginTop: 12,
+    paddingHorizontal: 20,
   },
   input: {
     borderWidth: 1,
@@ -93,6 +130,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#fff",
     marginBottom: 12,
+    marginHorizontal: 20,
   },
   button: {
     backgroundColor: "#38A69D",
@@ -100,6 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
+    marginHorizontal: 20,
   },
   buttonText: {
     color: "#fff",
