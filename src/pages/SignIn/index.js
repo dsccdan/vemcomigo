@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -7,14 +7,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as Animatable from "react-native-animatable";
-import { useNavigation } from "@react-navigation/native";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
+
+// import { Container } from './styles';
 
 export default function SignIn() {
-  const navigation = useNavigation();
-  const [passwordVisible, setPasswordVisible] = useState(false); // Estado para alternar a visibilidade da senha
-  const [password, setPassword] = useState(""); // Estado para armazenar a senha
-
   return (
     <View style={styles.container}>
       <Animatable.View
@@ -26,46 +22,20 @@ export default function SignIn() {
       </Animatable.View>
 
       <Animatable.View animation="fadeInUp" style={styles.containerForm}>
-        <Text style={styles.title}>Email</Text>
-        <TextInput
-          placeholder="Digite um e-mail..."
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+        <Text style={styles.title}> Email </Text>
+        <TextInput placeholder="Digite um e-mail..." style={styles.input} />
+        <Text style={styles.title}> Senha </Text>
+        <TextInput placeholder="Sua senha." style={styles.input} />
 
-        <Text style={styles.title}>Senha</Text>
-        <View style={styles.passwordContainer}>
-          <TextInput
-            placeholder="Sua senha"
-            style={styles.inputPassword}
-            secureTextEntry={!passwordVisible} // Alterna visibilidade
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity
-            onPress={() => setPasswordVisible(!passwordVisible)}
-          >
-            <FontAwesome
-              name={passwordVisible ? "eye" : "eye-slash"}
-              size={20}
-              color="#a1a1a1"
-            />
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          activeOpacity={0.6}
-          style={styles.button}
-          onPress={() => navigation.navigate("Main")}
-        >
+        <TouchableOpacity activeOpacity={0.6} style={styles.button}>
           <Text style={styles.buttonText}>Acessar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity activeOpacity={0.6} style={styles.buttonRegister}>
           <Text style={styles.registerText}>
-            Não possui uma conta? Registre-se
+            Não possui uma conta? Registra-se
           </Text>
+
         </TouchableOpacity>
       </Animatable.View>
     </View>
@@ -74,68 +44,60 @@ export default function SignIn() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#38A69D",
+    flex:1,
+    backgroundColor:"#38A69D"
   },
-  containerHeader: {
-    marginTop: "14%",
-    marginBottom: "8%",
-    paddingStart: "5%",
+  containerHeader:{
+    marginTop:'14%',
+    marginBottom:'8%',
+    paddingStart:'5%'
   },
-  message: {
+  message:{
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
+    fontWeight:'bold',
+    color:'#fff'
   },
-  containerForm: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    paddingStart: "5%",
-    paddingEnd: "5%",
+  containerForm:{
+    flex:1,
+    backgroundColor:'#fff',
+    borderTopLeftRadius:26,
+    borderTopRightRadius:26,
+    paddingStart: '5%',
+    paddingEnd: '5%'
   },
-  title: {
+  title:{
     fontSize: 20,
     marginTop: 28,
-    fontWeight: "bold",
+    fontWeight:'bold',
   },
-  input: {
-    borderBottomWidth: 1,
-    height: 40,
-    marginBottom: 12,
-    fontSize: 16,
+  input:{
+    borderBottomWidth:1,
+    height:40,
+    marginBottom:12,
+    fontSize:16
   },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    height: 40,
-    marginBottom: 12,
-  },
-  inputPassword: {
-    flex: 1,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: "#38A69D",
-    width: "100%",
+  button:{
+    backgroundColor:"#38A69D",
+    width: '100%',
     borderRadius: 4,
     paddingVertical: 8,
     marginTop: 14,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  buttonText: {
-    color: "#fff",
+  buttonText:{
+    color: '#fff',
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight:'bold'
   },
-  buttonRegister: {
-    marginTop: 14,
-    alignSelf: "center",
+  buttonRegister:{
+    marginTop:14,
+    alignSelf:'center'
   },
-  registerText: {
-    color: "#a1a1a1",
-  },
+  registerText:{
+    color:'#a1a1a1'
+  }
+
+
+
 });
