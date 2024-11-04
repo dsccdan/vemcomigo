@@ -4,7 +4,8 @@ import Welcome from '../pages/Welcome'
 import SignIn from '../pages/SignIn'
 import Main from "../pages/Main"; 
 import CreateRide from "../pages/CreateRide";
-import EditProfile from "../pages/EditProfile";  
+import EditProfile from "../pages/EditProfile";
+import MyRides from "../pages/MyRides";    
 
 
 const Stack = createNativeStackNavigator(); 
@@ -41,6 +42,12 @@ export default function Routes(){
             component={EditProfile}
             options={{headerShown: false}}
             /> 
+
+            <Stack.Screen
+            name="MyRides"
+            component={MyRides}
+            options={{headerShown: false}}
+            />
         </Stack.Navigator>
     )
 }

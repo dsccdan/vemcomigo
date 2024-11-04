@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from "@react-navigation/native";
 import { DrawerLayout } from 'react-native-gesture-handler';
 
-const rides = [
+const ridesData = [
   { id: '1', driver: 'João', destination: 'Centro da Cidade', time: '09:00', date: '2023-10-28', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
   { id: '2', driver: 'Maria', destination: 'Shopping Metropolitano', time: '13:30', date: '2023-10-29', spots: 3, imageUrl: 'https://via.placeholder.com/80' },
   { id: '3', driver: 'Lucas', destination: 'Estação Jardim Oceânico', time: '18:00', date: '2023-10-30', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
@@ -20,9 +20,24 @@ const Main = () => {
   const [age, setAge] = useState("37");
   const [phone, setPhone] = useState("(21) 97879-7418");
   const [email, setEmail] = useState("dsccdan@gmail.com");
+  const [rides, setRides] = useState(ridesData);
+  const [acceptedRides, setAcceptedRides] = useState([]);
 
   const handleInterest = (rideId) => {
-    Alert.alert("Interesse Registrado", `Você manifestou interesse na carona ${rideId}`);
+    setRides((prevRides) =>
+      prevRides.map((ride) => {
+        if (ride.id === rideId && ride.spots > 0) {
+          return { ...ride, spots: ride.spots - 1 };
+        }
+        return ride;
+      })
+    );
+
+    const selectedRide = rides.find((ride) => ride.id === rideId);
+    if (selectedRide && !acceptedRides.includes(selectedRide)) {
+      setAcceptedRides((prevAccepted) => [...prevAccepted, { ...selectedRide, isUserSelected: true }]);
+      Alert.alert("Interesse Registrado", `Você manifestou interesse na carona ${rideId}`);
+    }
   };
 
   const pickImage = async () => {
@@ -45,37 +60,49 @@ const Main = () => {
     }
   };
 
-  const renderRide = ({ item }) => (
-    <View style={styles.rideCard}>
-      <View style={styles.cardRow}>
-        <View style={styles.imageColumn}>
-          <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
-          <Text style={styles.driverName}>{item.driver}</Text>
-        </View>
-        <View style={styles.infoColumn}>
-          <Text style={styles.destinationText}>{item.destination}</Text>
-          <View style={styles.infoRow}>
-            <FontAwesome name="calendar" size={16} color="#888" />
-            <Text style={styles.rideText}>{new Date(item.date).toLocaleDateString("pt-BR")}</Text>
+  const renderRide = ({ item }) => {
+    const isAccepted = acceptedRides.some((ride) => ride.id === item.id && ride.isUserSelected);
+    const isFull = item.spots === 0;
+
+    return (
+      <View style={styles.rideCard}>
+        <View style={styles.cardRow}>
+          <View style={styles.imageColumn}>
+            <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
+            <Text style={styles.driverName}>{item.driver}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <FontAwesome name="clock-o" size={16} color="#888" />
-            <Text style={styles.rideText}>{item.time}</Text>
+          <View style={styles.infoColumn}>
+            <Text style={styles.destinationText}>{item.destination}</Text>
+            <View style={styles.infoRow}>
+              <FontAwesome name="calendar" size={16} color="#888" />
+              <Text style={styles.rideText}>{new Date(item.date).toLocaleDateString("pt-BR")}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <FontAwesome name="clock-o" size={16} color="#888" />
+              <Text style={styles.rideText}>{item.time}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <FontAwesome name="user" size={16} color="#888" />
+              <Text style={styles.rideText}>Vagas: {item.spots}</Text>
+            </View>
+            <TouchableOpacity 
+              style={[
+                styles.smallInterestButton, 
+                isAccepted && styles.acceptedButton, 
+                isFull && !isAccepted && styles.fullButton
+              ]}
+              onPress={() => handleInterest(item.id)}
+              disabled={isFull && !isAccepted}
+            >
+              <Text style={[styles.buttonText, isFull && !isAccepted && styles.fullButtonText]}>
+                {isFull && !isAccepted ? "Lotado" : isAccepted ? "Selecionada" : "Interesse"}
+              </Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.infoRow}>
-            <FontAwesome name="user" size={16} color="#888" />
-            <Text style={styles.rideText}>Vagas: {item.spots}</Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.smallInterestButton}
-            onPress={() => handleInterest(item.id)}
-          >
-            <Text style={styles.buttonText}>Interesse</Text>
-          </TouchableOpacity>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderDrawerContent = () => (
     <View style={styles.drawerContent}>
@@ -139,6 +166,12 @@ const Main = () => {
             onPress={() => navigation.navigate("CreateRide")}
           >
             <Text style={styles.buttonText}>Oferecer Carona</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => navigation.navigate("MyRides", { selectedRides: acceptedRides })}
+          >
+            <Text style={styles.buttonText}>Minhas Caronas</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -243,6 +276,20 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems: 'center',
   },
+  acceptedButton: {
+    backgroundColor: '#4CAF50', // cor verde para o botão selecionado
+  },
+  fullButton: {
+    backgroundColor: 'red', // cor vermelha para o botão "Lotado"
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  fullButtonText: {
+    color: '#fff', // texto branco para o botão "Lotado"
+  },
   button: {
     backgroundColor: '#1c1c1c',
     paddingVertical: 12,
@@ -251,11 +298,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     marginHorizontal: 16,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   drawerContent: {
     flex: 1,

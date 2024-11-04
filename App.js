@@ -7,7 +7,7 @@ import  Routes from './src/routes/'
 export default function App() {
   return (
     <NavigationContainer>
-       <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar backgroundColor="#1c1c1c" barStyle="light-content"/>
       <Routes/>
       </GestureHandlerRootView>
