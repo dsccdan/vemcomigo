@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, StatusBar, Image, Dimensions } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from "@react-navigation/native";
 import { DrawerLayout } from 'react-native-gesture-handler';
@@ -26,15 +26,13 @@ const Main = () => {
   };
 
   const pickImage = async () => {
-    // Solicita permissão para acessar a biblioteca de fotos
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (permissionResult.granted === false) {
+    if (!permissionResult.granted) {
       Alert.alert("Permissão necessária", "Permissão para acessar fotos é necessária!");
       return;
     }
 
-    // Abre o seletor de imagem
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -43,7 +41,7 @@ const Main = () => {
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri); // Atualiza a imagem de perfil com a URI selecionada
+      setProfileImage(result.assets[0].uri);
     }
   };
 
@@ -81,31 +79,46 @@ const Main = () => {
 
   const renderDrawerContent = () => (
     <View style={styles.drawerContent}>
-      <TouchableOpacity onPress={pickImage}>
-        <Image source={{ uri: profileImage }} style={styles.drawerProfileImage} />
-      </TouchableOpacity>
-      <Text style={styles.drawerLabelName}>{userName}</Text>
-      <Text style={styles.drawerLabel}>{age} anos</Text>
+      <View style={styles.profileSection}>
+        <TouchableOpacity onPress={pickImage}>
+          <Image source={{ uri: profileImage }} style={styles.drawerProfileImage} />
+        </TouchableOpacity>
+        <View style={styles.profileInfo}>
+          <Text style={styles.drawerLabelName}>{userName}</Text>
+          <Text style={styles.drawerLabel}>{email}</Text>
+        </View>
+      </View>
+      
+      <View style={styles.divider} />
+  
       <Text style={styles.drawerLabel}>{phone}</Text>
-      <Text style={styles.drawerLabel}>{email}</Text>
-      <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.navigate("EditProfile")}>
-        <Text style={styles.drawerButtonText}>Editar Perfil</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.drawerButton} onPress={() => navigation.replace("SignIn")}>
-        <Text style={styles.drawerButtonText}>Logout</Text>
-      </TouchableOpacity>
+      <Text style={styles.drawerLabel}>{age} anos</Text>
+
+      <View style={styles.divider} />
+      
+      <View style={styles.actionSection}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate("EditProfile")}>
+          <MaterialIcons name="edit" size={20} color="#fff" style={styles.icon} />
+          <Text style={styles.actionText}>Editar Perfil</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.replace("SignIn")}>
+          <MaterialIcons name="logout" size={20} color="#fff" style={styles.icon} />
+          <Text style={styles.actionText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
     <DrawerLayout
       ref={drawer}
-      drawerWidth={300}
+      drawerWidth={350}
       drawerPosition="left"
       renderNavigationView={renderDrawerContent}
     >
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#38A69D" />
+        <StatusBar barStyle="light-content" backgroundColor="#1c1c1c" />
         <View style={styles.header}>
           <TouchableOpacity onPress={() => drawer.current.openDrawer()}>
             <FontAwesome name="bars" size={24} color="#fff" />
@@ -144,7 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#38A69D',
+    backgroundColor: '#1c1c1c',
     paddingVertical: 15,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -163,9 +176,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#38A69D',
+    color: '#1c1c1c',
     marginBottom: 16,
-    marginTop:16,
+    marginTop: 16,
     textAlign: 'center',
   },
   rideCard: {
@@ -223,18 +236,15 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   smallInterestButton: {
-    backgroundColor: '#38A69D',
+    backgroundColor: '#1c1c1c',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
     marginTop: 10,
     alignItems: 'center',
   },
-  expiredButton: {
-    backgroundColor: '#d3d3d3',
-  },
   button: {
-    backgroundColor: '#38A69D',
+    backgroundColor: '#1c1c1c',
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
@@ -250,41 +260,50 @@ const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#38A69D',
-    width:'75%',
-    borderBottomRightRadius:26
+    backgroundColor: '#1c1c1c',
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   drawerProfileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignSelf: 'center',
-    marginBottom: 8,
-    marginTop:16
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 16,
+  },
+  profileInfo: {
+    flexDirection: 'column',
   },
   drawerLabelName: {
     fontSize: 18,
     color: '#fff',
-    marginBottom: 26,
     fontWeight: 'bold',
-    alignSelf:'center'
   },
   drawerLabel: {
     fontSize: 16,
     color: '#fff',
     marginBottom: 8,
-    fontWeight: 'bold',
   },
-  drawerButton: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    borderRadius: 8,
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+    marginBottom: 8,
+  },
+  actionSection: {
+    marginTop: 0,
+  },
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 16,
+    paddingVertical: 8,
   },
-  drawerButtonText: {
-    color: '#38A69D',
-    fontSize: 14,
-    fontWeight: 'bold',
+  icon: {
+    marginRight: 8,
+  },
+  actionText: {
+    fontSize: 16,
+    color: '#fff',
   },
 });
