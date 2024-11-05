@@ -1,48 +1,31 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, StatusBar, Image, Dimensions } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from "@react-navigation/native";
 import { DrawerLayout } from 'react-native-gesture-handler';
-
-const ridesData = [
-  { id: '1', driver: 'João', destination: 'Centro da Cidade', time: '09:00', date: '2023-10-28', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '2', driver: 'Maria', destination: 'Shopping Metropolitano', time: '13:30', date: '2023-10-29', spots: 3, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '3', driver: 'Lucas', destination: 'Estação Jardim Oceânico', time: '18:00', date: '2023-10-30', spots: 1, imageUrl: 'https://via.placeholder.com/80' },
-  { id: '4', driver: 'Ana', destination: 'Barra da Tijuca', time: '07:30', date: '2023-11-01', spots: 2, imageUrl: 'https://via.placeholder.com/80' },
-];
+import { RidesContext } from '../../context/RidesContext';
 
 const Main = () => {
+  const { rides, addRide, acceptedRides } = useContext(RidesContext);
   const navigation = useNavigation();
   const drawer = useRef(null);
-  const [userName, setUserName] = useState("Daniel S C Caldas");
   const [profileImage, setProfileImage] = useState("https://via.placeholder.com/100");
+  const [userName, setUserName] = useState("Daniel S C Caldas");
   const [age, setAge] = useState("37");
   const [phone, setPhone] = useState("(21) 97879-7418");
   const [email, setEmail] = useState("dsccdan@gmail.com");
-  const [rides, setRides] = useState(ridesData);
-  const [acceptedRides, setAcceptedRides] = useState([]);
 
   const handleInterest = (rideId) => {
-    setRides((prevRides) =>
-      prevRides.map((ride) => {
-        if (ride.id === rideId && ride.spots > 0) {
-          return { ...ride, spots: ride.spots - 1 };
-        }
-        return ride;
-      })
-    );
-
     const selectedRide = rides.find((ride) => ride.id === rideId);
-    if (selectedRide && !acceptedRides.includes(selectedRide)) {
-      setAcceptedRides((prevAccepted) => [...prevAccepted, { ...selectedRide, isUserSelected: true }]);
-      Alert.alert("Interesse Registrado", `Você manifestou interesse na carona ${rideId}`);
+    if (selectedRide && selectedRide.spots > 0 && !acceptedRides.some((ride) => ride.id === rideId)) {
+      addRide(selectedRide);
+      Alert.alert("Interesse Registrado", `Você manifestou interesse na carona para ${selectedRide.destination}`);
     }
   };
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
     if (!permissionResult.granted) {
       Alert.alert("Permissão necessária", "Permissão para acessar fotos é necessária!");
       return;
@@ -61,7 +44,7 @@ const Main = () => {
   };
 
   const renderRide = ({ item }) => {
-    const isAccepted = acceptedRides.some((ride) => ride.id === item.id && ride.isUserSelected);
+    const isAccepted = acceptedRides.some((ride) => ride.id === item.id);
     const isFull = item.spots === 0;
 
     return (
@@ -92,7 +75,7 @@ const Main = () => {
                 isFull && !isAccepted && styles.fullButton
               ]}
               onPress={() => handleInterest(item.id)}
-              disabled={isFull && !isAccepted}
+              disabled={isAccepted || isFull}
             >
               <Text style={[styles.buttonText, isFull && !isAccepted && styles.fullButtonText]}>
                 {isFull && !isAccepted ? "Lotado" : isAccepted ? "Selecionada" : "Interesse"}
@@ -166,12 +149,6 @@ const Main = () => {
             onPress={() => navigation.navigate("CreateRide")}
           >
             <Text style={styles.buttonText}>Oferecer Carona</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => navigation.navigate("MyRides", { selectedRides: acceptedRides })}
-          >
-            <Text style={styles.buttonText}>Minhas Caronas</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -277,10 +254,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   acceptedButton: {
-    backgroundColor: '#4CAF50', // cor verde para o botão selecionado
+    backgroundColor: '#4CAF50',
   },
   fullButton: {
-    backgroundColor: 'red', // cor vermelha para o botão "Lotado"
+    backgroundColor: 'red',
   },
   buttonText: {
     color: '#fff',
@@ -288,7 +265,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   fullButtonText: {
-    color: '#fff', // texto branco para o botão "Lotado"
+    color: '#fff',
   },
   button: {
     backgroundColor: '#1c1c1c',

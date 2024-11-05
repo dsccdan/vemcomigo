@@ -12,8 +12,18 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 export default function SignIn() {
   const navigation = useNavigation();
-  const [passwordVisible, setPasswordVisible] = useState(false); // Estado para alternar a visibilidade da senha
-  const [password, setPassword] = useState(""); // Estado para armazenar a senha
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+
+  const handleLogin = () => {
+    // Validação básica
+    if (email === "" || password === "") {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
+    navigation.navigate("MainTabs"); // Ajuste a navegação para MainTabs
+  };
 
   return (
     <View style={styles.container}>
@@ -32,6 +42,8 @@ export default function SignIn() {
           style={styles.input}
           keyboardType="email-address"
           autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
         />
 
         <Text style={styles.title}>Senha</Text>
@@ -39,7 +51,7 @@ export default function SignIn() {
           <TextInput
             placeholder="Sua senha"
             style={styles.inputPassword}
-            secureTextEntry={!passwordVisible} // Alterna visibilidade
+            secureTextEntry={!passwordVisible}
             value={password}
             onChangeText={setPassword}
           />
@@ -57,7 +69,7 @@ export default function SignIn() {
         <TouchableOpacity
           activeOpacity={0.6}
           style={styles.button}
-          onPress={() => navigation.navigate("Main")}
+          onPress={handleLogin}
         >
           <Text style={styles.buttonText}>Acessar</Text>
         </TouchableOpacity>

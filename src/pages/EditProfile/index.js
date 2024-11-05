@@ -16,7 +16,7 @@ const EditProfile = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Main')}>
+        <TouchableOpacity onPress={() => navigation.navigate('MainTabs')}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar Perfil</Text>

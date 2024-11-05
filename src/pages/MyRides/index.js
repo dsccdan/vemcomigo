@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { RidesContext } from '../../context/RidesContext';
 
-const MyRides = ({ route }) => {
-  const { selectedRides } = route.params;
+const MyRides = () => {
+  const { acceptedRides, removeRide } = useContext(RidesContext);
 
   const renderRide = ({ item }) => (
     <View style={styles.rideCard}>
@@ -27,6 +28,10 @@ const MyRides = ({ route }) => {
             <Text style={styles.rideText}>Vagas: {item.spots}</Text>
           </View>
         </View>
+        <TouchableOpacity onPress={() => removeRide(item.id)} style={styles.removeButton}>
+          <MaterialIcons name="delete" size={24} color="red" />
+          <Text style={styles.removeButtonText}>Remover</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -34,12 +39,16 @@ const MyRides = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Minhas Caronas</Text>
-      <FlatList
-        data={selectedRides}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRide}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      {acceptedRides.length > 0 ? (
+        <FlatList
+          data={acceptedRides}
+          keyExtractor={(item) => item.id}
+          renderItem={renderRide}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      ) : (
+        <Text style={styles.noRidesText}>Você ainda não tem caronas selecionadas.</Text>
+      )}
     </View>
   );
 };
@@ -59,6 +68,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
+  noRidesText: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
+  },
   rideCard: {
     backgroundColor: '#fff',
     padding: 16,
@@ -72,6 +87,8 @@ const styles = StyleSheet.create({
   },
   cardRow: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   imageColumn: {
     alignItems: 'center',
@@ -109,6 +126,15 @@ const styles = StyleSheet.create({
   rideText: {
     fontSize: 14,
     color: '#555',
+    marginLeft: 4,
+  },
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: 'red',
+    fontSize: 16,
     marginLeft: 4,
   },
 });
