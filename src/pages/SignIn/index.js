@@ -74,7 +74,11 @@ export default function SignIn() {
           <Text style={styles.buttonText}>Acessar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.6} style={styles.buttonRegister}>
+        <TouchableOpacity
+          activeOpacity={0.6}
+          style={styles.buttonRegister}
+          onPress={() => navigation.navigate("UserRegister")}
+        >
           <Text style={styles.registerText}>
             Não possui uma conta? Registre-se
           </Text>

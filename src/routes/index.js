@@ -9,7 +9,7 @@ import Main from "../pages/Main";
 import CreateRide from "../pages/CreateRide";
 import EditProfile from "../pages/EditProfile";
 import MyRides from "../pages/MyRides";
-
+import UserRegister from '../pages/UserRegister';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,9 +21,9 @@ function BottomTabs() {
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
-          if (route.name === 'Caronas Disponíveis') {
+          if (route.name === 'Main') {
             iconName = 'car';
-          } else if (route.name === 'Minhas Caronas') {
+          } else if (route.name === 'MyRides') {
             iconName = 'list';
           }
 
@@ -33,15 +33,15 @@ function BottomTabs() {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="Caronas Disponíveis" component={Main} options={{ headerShown: false }} />
-      <Tab.Screen name="Minhas Caronas" component={MyRides} options={{ headerShown: false }} />
+      <Tab.Screen name="Main" component={Main} options={{ title: 'Caronas Disponíveis', headerShown: false }} />
+      <Tab.Screen name="MyRides" component={MyRides} options={{ title: 'Minhas Caronas', headerShown: false }} />
     </Tab.Navigator>
   );
 }
 
 export default function Routes() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="Welcome">
       <Stack.Screen
         name="Welcome"
         component={Welcome}
@@ -53,6 +53,11 @@ export default function Routes() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="UserRegister"
+        component={UserRegister}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="MainTabs"
         component={BottomTabs}  // Usa o BottomTabs como uma tela na pilha
         options={{ headerShown: false }}
@@ -60,12 +65,12 @@ export default function Routes() {
       <Stack.Screen
         name="CreateRide"
         component={CreateRide}
-        options={{ headerShown: false }}
+        options={{ title: 'Oferecer Carona' }}
       />
       <Stack.Screen
         name="EditProfile"
         component={EditProfile}
-        options={{ headerShown: false }}
+        options={{ title: 'Editar Perfil' }}
       />
     </Stack.Navigator>
   );
