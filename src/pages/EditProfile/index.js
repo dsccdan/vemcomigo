@@ -15,12 +15,7 @@ const EditProfile = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('MainTabs')}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Editar Perfil</Text>
-      </View>
+      
 
       <TextInput style={styles.input} value={userName} onChangeText={setUserName} placeholder="Nome" />
       <TextInput style={styles.input} value={age} onChangeText={setAge} placeholder="Idade" keyboardType="numeric" />

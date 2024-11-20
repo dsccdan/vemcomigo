@@ -41,13 +41,6 @@ export default function CreateRide() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <FontAwesome name="arrow-left" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Cadastrar Carona</Text>
-      </View>
-
       <Text style={styles.label}>Destino</Text>
       <TextInput
         style={styles.input}
